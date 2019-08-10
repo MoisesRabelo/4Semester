@@ -2,49 +2,63 @@ import timeit
 from random import randint
 import matplotlib.pyplot as plt
 
-
-def geraLista(tam):
+def geraListaInvertida(tam):
     lista = []
     while tam:
         lista.append(tam)
         tam-=1
     return lista
+      
+def geraListaRandomica(tam):
+    lista = []
+    for i in range(tam):
+        n = randint(1,1*tam)
+        if n not in lista: lista.append(n)
+    return lista
 
-
-def drawGraph(x,BSort,xl = "Entradas", yl = "loops",nam="img"):
-    fig = plt.figure(figsize=(10, 13))
+def drawGraph(x,lista1,lista2,xl = "Entradas", yl = "Y",name="out", label1 = "Lista Randomica", label2= "Lista Invertida"):
+    fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111)
-    ax.plot(x,BSort, label = "Bubble Sort")
+    ax.plot(x, lista1, label = label1)
+    ax.plot(x, lista2, label = label2)
     ax.legend(bbox_to_anchor=(1, 1),bbox_transform=plt.gcf().transFigure)
     plt.ylabel(yl)
     plt.xlabel(xl)
-    plt.savefig(nam)
+    plt.savefig(name)
+
+operacoes =[]
+
+def InsertionSort(lista):
+	count = 0
+	for x in range(0, len(lista)):
+		key = lista[x]
+		y = x-1
+		while key < lista[y] and y>=0:
+			lista[y+1] = lista[y]
+			y-=1
+			count+=1
+		lista[y+1] = key
+		count+=1
+	operacoes.append(count)
 
 
-def bubbleSort(arr):
-    count = 0
-    n = len(arr)
-    for i in range(n):
-        for j in range(0, n-i-1):
-            count+=1
-            if arr[j] > arr[j+1] :
-                arr[j], arr[j+1] = arr[j+1], arr[j]
-    return count
-  
-  
-vetor = [10000,20000,50000,100000]
-saidaB = []
-saidaL = []
+quant = [10000, 20000, 50000, 100000]
+tempoRandomica = []
+tempoInvertida = []
+
+for i in range(len(quant)):
+    listaRandomica = geraListaRandomica(quant[i])
+    tempoRandomica.append(timeit.timeit("InsertionSort({})".format(listaRandomica),setup="from __main__ import InsertionSort",number=1))
+operacoesRandomica = operacoes
+operacoes = []
+
+for i in range(len(quant)):
+    listaInvertida = geraListaInvertida(quant[i])
+    tempoInvertida.append(timeit.timeit("InsertionSort({})".format(listaInvertida),setup="from __main__ import InsertionSort",number=1))
+
+operacoesInvertida = operacoes
+operacoes = []
 
 
-for i in range(len(vetor)):
-  saidaB.append(timeit.timeit("bubbleSort({})".format(geraLista(vetor[i])),setup="from __main__ import geraLista,bubbleSort",number=1))
-
-
-drawGraph(vetor,saidaB,nam="time")
-
-
-for i in range(len(vetor)):
-  saidaL.append(bubbleSort(geraLista(vetor[i])))
-
-drawGraph(vetor,saidaL,nam="cont")
+drawGraph(quant,tempoRandomica,tempoInvertida,"Tamanho", "Tempo", "Tempo")
+drawGraph(quant,operacoesRandomica,operacoesInvertida, "Tamanho", "Operacoes", "Operacoes")
